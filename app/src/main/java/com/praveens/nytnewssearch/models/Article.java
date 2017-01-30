@@ -16,32 +16,17 @@ public class Article {
     private String webUrl;
     private String thumbnail;
 
-    public Article(String headline, String webUrl, String thumbnail) {
-        this.headline = headline;
-        this.webUrl = webUrl;
-        this.thumbnail = thumbnail;
-    }
-
     public Article(JSONObject jsonObject) throws JSONException {
         this.headline = jsonObject.getJSONObject("headline").get("main").toString();
         this.webUrl = jsonObject.getString("web_url");
 
-        JSONArray mutimedia = jsonObject.getJSONArray("multimedia");
+        JSONArray multimedia = jsonObject.getJSONArray("multimedia");
 
-        if (mutimedia != null && mutimedia.length() > 0) {
-            JSONObject mutimediaFirst = mutimedia.getJSONObject(0);
+        if (multimedia != null && multimedia.length() > 0) {
+            JSONObject mutimediaFirst = multimedia.getJSONObject(0);
             this.thumbnail = "http://www.nytimes.com/" + mutimediaFirst.getString("url");
         }
 
-    }
-
-    @Override
-    public String toString() {
-        return "Article{" +
-                "headline='" + headline + '\'' +
-                ", webUrl='" + webUrl + '\'' +
-                ", thumbnail='" + thumbnail + '\'' +
-                '}';
     }
 
     public String getHeadline() {
