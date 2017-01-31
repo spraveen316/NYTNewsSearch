@@ -1,6 +1,7 @@
 package com.praveens.nytnewssearch.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,8 +11,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.praveens.nytnewssearch.R;
+import com.praveens.nytnewssearch.activities.ArticleActivity;
 import com.praveens.nytnewssearch.models.Article;
 import com.squareup.picasso.Picasso;
+
+import org.parceler.Parcels;
 
 import java.util.List;
 
@@ -32,16 +36,20 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
     private List<Article> articles;
     private Context context;
 
+    public void addAll() {
+
+    }
+
     @Override
     public SearchRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.article_item, parent, false);
-        ViewHolder viewHolder = new ViewHolder(layout);
+        //LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.article_item, parent, false);
+        ViewHolder viewHolder = new ViewHolder(inflater.inflate(R.layout.article_item, parent, false));
         return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         Article currentArticle = articles.get(position);
         viewHolder.headline.setText(currentArticle.getHeadline());
 
@@ -49,6 +57,16 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
                 //.error(R.drawable.)
                 //.placeholder(R.drawable.imageviewplaceholder)
                 .into(viewHolder.thumbnail);
+
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, ArticleActivity.class);
+                Article article = articles.get(position);
+                intent.putExtra("article", Parcels.wrap(article));
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override

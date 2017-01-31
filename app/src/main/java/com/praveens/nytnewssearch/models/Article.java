@@ -3,18 +3,25 @@ package com.praveens.nytnewssearch.models;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcel;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.R.id.empty;
 
 /**
  * Created by praveens on 1/30/17.
  */
 
+@Parcel
 public class Article {
     private String headline;
     private String webUrl;
     private String thumbnail;
+
+    public Article() {
+    }
 
     public Article(JSONObject jsonObject) throws JSONException {
         this.headline = jsonObject.getJSONObject("headline").get("main").toString();
@@ -23,8 +30,8 @@ public class Article {
         JSONArray multimedia = jsonObject.getJSONArray("multimedia");
 
         if (multimedia != null && multimedia.length() > 0) {
-            JSONObject mutimediaFirst = multimedia.getJSONObject(0);
-            this.thumbnail = "http://www.nytimes.com/" + mutimediaFirst.getString("url");
+            JSONObject multimediaFirst = multimedia.getJSONObject(0);
+            this.thumbnail = "http://www.nytimes.com/" + multimediaFirst.getString("url");
         }
 
     }

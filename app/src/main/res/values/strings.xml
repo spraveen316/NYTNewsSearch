@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">NYTNewsSearch</string>
+    <string name="app_name">NYT Article Search</string>
+    <string name="share">Share</string>
 </resources>
