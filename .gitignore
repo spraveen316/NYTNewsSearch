@@ -19,3 +19,5 @@
 app/proguard-rules.pro
 
 app/src/main/res/values/secrets.xml
+
+.idea/markdown-navigator.xml

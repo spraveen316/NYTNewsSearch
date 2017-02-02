@@ -1,5 +1,6 @@
 package com.praveens.nytnewssearch.activities;
 
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,19 +11,27 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.gson.Gson;
-
 import com.praveens.nytnewssearch.R;
 import com.praveens.nytnewssearch.adapter.SearchRecyclerViewAdapter;
+import com.praveens.nytnewssearch.fragments.SettingsFragment;
 import com.praveens.nytnewssearch.models.Article;
+import com.praveens.nytnewssearch.models.Settings;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,8 +43,18 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import android.support.v7.widget.SearchView;
+import android.widget.Toast;
 
-public class SearchActivity extends AppCompatActivity {
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
+import static android.webkit.ConsoleMessage.MessageLevel.LOG;
+import static com.facebook.FacebookSdk.getApplicationContext;
+import static com.praveens.nytnewssearch.fragments.SettingsFragment.SHARED_PREF_SETTINGS;
+import static java.nio.charset.StandardCharsets.*;
+
+public class SearchActivity extends AppCompatActivity implements SettingsFragment.SaveSettingsDialogListener {
+
+    @BindView(R.id.rvArticleGrid)
+    RecyclerView recyclerView;
 
     private static final String LOG_TAG = SearchActivity.class.getName();
     private static final String NYT_API_KEY = "20a186875f0b4cc7803573e6ca94d2ef";
@@ -43,14 +62,10 @@ public class SearchActivity extends AppCompatActivity {
     private List<Article> articles = new ArrayList<Article>();
 
     private RecyclerView.Adapter adapter;
-
-    final Gson gson = new Gson();
     private OkHttpClient client = new OkHttpClient();
 
-    @BindView(R.id.rvArticleGrid)
-    RecyclerView recyclerView;
-
     private MenuItem searchMenuItem;
+    private Settings settings;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -112,7 +127,6 @@ public class SearchActivity extends AppCompatActivity {
                 doSearch();
                 return true;
             case R.id.miSettings:
-                Log.d(LOG_TAG, "Settings...");
                 doSettings();
                 return true;
             default:
@@ -121,53 +135,50 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void doSettings() {
+        FragmentManager fm = getSupportFragmentManager();
+        SettingsFragment settingsFragment = SettingsFragment.newInstance();
+        settingsFragment.show(fm, "fragment_settings");
     }
 
     private void doSearch() {
     }
 
-/*    public void onSearchClick(View view) {
-    }*/
-
-    private void fetchArticles(String searchText) {
-     /*   AsyncHttpClient client = new AsyncHttpClient();
-        RequestParams params = new RequestParams();
-        params.put("api-key", NYT_API_KEY);
-        params.put("page", 0);
-        params.put("q", searchText);
-
-        client.get(NYT_URL, params, new JsonHttpResponseHandler() {
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                JSONArray articlesJSON;
-
-                try {
-                    articlesJSON = response.getJSONObject("response").getJSONArray("docs");
-                    articles.addAll(Article.fromJSONArray(articlesJSON));
-
-                    for (int i = 0; i < articles.size(); i++) {
-                        //Log.d("XXXXXXXX", articles.get(i).toString());
-                    }
-
-                    adapter.notifyDataSetChanged();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
+    private String buildFQParamvalue(Map<Settings.NewsDeskValues, Boolean> ndValues) {
+        if (ndValues != null && !settings.getCheckedNDValues().isEmpty()) {
+            StringBuffer sb = new StringBuffer("news_desk:%28");
+            for (Map.Entry<Settings.NewsDeskValues, Boolean> entry : ndValues.entrySet()) {
+                if (entry.getValue()) {
+                    sb.append("%22").append(entry.getKey().getKey()).append("%22 ");
                 }
             }
-        }); */
+            sb.append("%29");
+            Log.d(LOG_TAG, "sb.toString()=" + sb.toString());
+            return sb.toString();
+        } else return null;
+    }
 
-
+    private void fetchArticles(String searchText) {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(NYT_URL).newBuilder();
         urlBuilder.addQueryParameter("api-key", NYT_API_KEY);
         urlBuilder.addQueryParameter("page", "0");
         urlBuilder.addQueryParameter("q", searchText);
+
+        Log.d(LOG_TAG, "settings=" + settings);
+
+        if (settings != null) {
+            if (settings.getBeginDate() != null) {
+                urlBuilder.addQueryParameter("begin_date", settings.getBeginDate());
+            }
+            if (StringUtils.isNotBlank(settings.getSortSelection())) {
+                urlBuilder.addQueryParameter("sort", settings.getSortSelection());
+            }
+            if (settings.getCheckedNDValues() != null && !settings.getCheckedNDValues().isEmpty()) {
+                //&fq=news_desk:("Sports" "Foreign")
+                urlBuilder.addEncodedQueryParameter("fq", buildFQParamvalue(settings.getCheckedNDValues()));
+            }
+        }
         String url = urlBuilder.build().toString();
+        Log.d(LOG_TAG, "url=" + url);
 
         Request request = new Request.Builder().url(url).build();
 
@@ -192,7 +203,7 @@ public class SearchActivity extends AppCompatActivity {
                     articles.addAll(Article.fromJSONArray(articlesJSON));
 
                     for (int i = 0; i < articles.size(); i++) {
-                        Log.d(LOG_TAG, articles.get(i).toString());
+                        //Log.d(LOG_TAG, articles.get(i).toString());
                     }
 
                     // Run view-related code back on the main thread
@@ -212,4 +223,22 @@ public class SearchActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onSaveSettings(Settings savedSettings) {
+        SimpleDateFormat originalFormat = new SimpleDateFormat("MMM dd yy", Locale.ENGLISH);
+        SimpleDateFormat targetFormat = new SimpleDateFormat("yyyyMMdd");
+        Date date;
+        if (StringUtils.isNotBlank(savedSettings.getBeginDate())) {
+            try {
+                date = originalFormat.parse(savedSettings.getBeginDate());
+                savedSettings.setBeginDate(targetFormat.format(date));
+            } catch (ParseException e) {
+                Log.w(LOG_TAG, "When parsing date:" + savedSettings.getBeginDate() + "exception:" + e.getMessage());
+                savedSettings.setBeginDate(null);
+            }
+        }
+        settings = savedSettings;
+        Toast.makeText(this, "Settings=" + savedSettings.getBeginDate() + ", " + settings.getSortSelection()
+                + ", " + savedSettings.getCheckedNDValues(), Toast.LENGTH_SHORT).show();
+    }
 }

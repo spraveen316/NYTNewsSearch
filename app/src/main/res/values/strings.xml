@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">NYT Article Search</string>
     <string name="share">Share</string>
+
+    <string-array name="sort">
+        <item></item>
+        <item>newest</item>
+        <item>oldest</item>
+    </string-array>
 </resources>
