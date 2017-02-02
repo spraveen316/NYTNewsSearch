@@ -23,8 +23,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,12 +42,6 @@ import okhttp3.Response;
 
 import android.support.v7.widget.SearchView;
 import android.widget.Toast;
-
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
-import static android.webkit.ConsoleMessage.MessageLevel.LOG;
-import static com.facebook.FacebookSdk.getApplicationContext;
-import static com.praveens.nytnewssearch.fragments.SettingsFragment.SHARED_PREF_SETTINGS;
-import static java.nio.charset.StandardCharsets.*;
 
 public class SearchActivity extends AppCompatActivity implements SettingsFragment.SaveSettingsDialogListener {
 
@@ -123,9 +115,6 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
-            case R.id.miSearch:
-                doSearch();
-                return true;
             case R.id.miSettings:
                 doSettings();
                 return true;
@@ -140,12 +129,9 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
         settingsFragment.show(fm, "fragment_settings");
     }
 
-    private void doSearch() {
-    }
-
     private String buildFQParamvalue(Map<Settings.NewsDeskValues, Boolean> ndValues) {
         if (ndValues != null && !settings.getCheckedNDValues().isEmpty()) {
-            StringBuffer sb = new StringBuffer("news_desk:%28");
+            StringBuilder sb = new StringBuilder("news_desk:%28");
             for (Map.Entry<Settings.NewsDeskValues, Boolean> entry : ndValues.entrySet()) {
                 if (entry.getValue()) {
                     sb.append("%22").append(entry.getKey().getKey()).append("%22 ");
@@ -200,6 +186,7 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
                     Log.d(LOG_TAG, responseData);
                     JSONObject json = new JSONObject(responseData);
                     articlesJSON = json.getJSONObject("response").getJSONArray("docs");
+                    articles.clear();
                     articles.addAll(Article.fromJSONArray(articlesJSON));
 
                     for (int i = 0; i < articles.size(); i++) {
@@ -225,12 +212,11 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
 
     @Override
     public void onSaveSettings(Settings savedSettings) {
-        SimpleDateFormat originalFormat = new SimpleDateFormat("MMM dd yy", Locale.ENGLISH);
-        SimpleDateFormat targetFormat = new SimpleDateFormat("yyyyMMdd");
-        Date date;
+        SimpleDateFormat originalFormat = new SimpleDateFormat("MMM dd yy", Locale.getDefault());
+        SimpleDateFormat targetFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
         if (StringUtils.isNotBlank(savedSettings.getBeginDate())) {
             try {
-                date = originalFormat.parse(savedSettings.getBeginDate());
+                Date date = originalFormat.parse(savedSettings.getBeginDate());
                 savedSettings.setBeginDate(targetFormat.format(date));
             } catch (ParseException e) {
                 Log.w(LOG_TAG, "When parsing date:" + savedSettings.getBeginDate() + "exception:" + e.getMessage());

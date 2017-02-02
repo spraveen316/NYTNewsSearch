@@ -212,8 +212,6 @@ public class SettingsFragment extends DialogFragment {//implements DatePickerFra
             }
         });
 
-        // checkbox listener
-
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
