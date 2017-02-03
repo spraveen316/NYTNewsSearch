@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.praveens.nytnewssearch.R;
+import com.praveens.nytnewssearch.utilities.DynamicHeightImageView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -19,7 +20,7 @@ public class DefaultViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.tvHeadline)
     TextView headline;
     @BindView(R.id.ivThumbnail)
-    ImageView thumbnail;
+    DynamicHeightImageView thumbnail;
 
     public DefaultViewHolder(View itemView) {
         super(itemView);
@@ -30,7 +31,7 @@ public class DefaultViewHolder extends RecyclerView.ViewHolder {
         return headline;
     }
 
-    public ImageView getThumbnail() {
+    public DynamicHeightImageView getThumbnail() {
         return thumbnail;
     }
 }

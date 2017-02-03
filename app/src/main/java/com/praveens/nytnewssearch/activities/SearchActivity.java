@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -72,6 +73,11 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
                 scrollListener.resetState();
                 queryBuff = query;
                 fetchArticles(query, true, pageNum);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 fetchArticles(query, false, String.valueOf(Integer.valueOf(pageNum) + 1));
                 searchView.clearFocus();
                 return true;
@@ -100,7 +106,8 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
         setContentView(R.layout.activity_search);
         ButterKnife.bind(this);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, Constants.ARTICLE_SEARCH_GRID_COLUMNS);
+      //  GridLayoutManager gridLayoutManager = new GridLayoutManager(this, Constants.ARTICLE_SEARCH_GRID_COLUMNS);
+        StaggeredGridLayoutManager gridLayoutManager = new StaggeredGridLayoutManager(Constants.ARTICLE_SEARCH_GRID_COLUMNS, 1);
         recyclerView.setLayoutManager(gridLayoutManager);
 
         articles = new ArrayList<Article>();

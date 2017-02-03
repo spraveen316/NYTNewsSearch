@@ -27,8 +27,9 @@ The following **optional** advanced user stories are implemented:
 * [ ] Robust error handling, check if internet is available, handle error cases, network failures.
 * [ ] Replace Filter Settings Activity with a lightweight modal overlay.
 * [ ] User can share a link to their friends or email it to themselves.
-* [ ] Use the RecyclerView with the StaggeredGridLayoutManager to display improve the grid of image results.
+* [X] Use the RecyclerView with the StaggeredGridLayoutManager to display improve the grid of image results.
 * [X] For different news articles that only have text or have text with thumbnails, use [Heterogenous Layouts](http://guides.codepath.com/android/Heterogenous-Layouts-inside-RecyclerView) with RecyclerView.
+* [X] Stretch: Apply the popular [ButterKnife annotation](http://guides.codepath.com/android/Reducing-View-Boilerplate-with-Butterknife) library to reduce view boilerplate.
 
 The following **additional** features are implemented:
 * [X] Settings can be cleared from Settings overlay.
