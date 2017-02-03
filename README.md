@@ -20,10 +20,13 @@ The following **required** functionality is completed:
     * Sort order (oldest or newest)
 * [X] Subsequent searches will have any filters applied to the search results.
 * [X] User can tap on any article in results to view the contents in an embedded browser.
-* [ ] User can scroll down "infinitely" to continue loading more news articles. The maximum number of articles is limited by the API search.
+* [X] User can scroll down "infinitely" to continue loading more news articles. The maximum number of articles is limited by the API search.
 * [ ] User can share a link to their friends or email it to themselves.
 
 The following **optional** advanced user stories are implemented:
+* [ ] Robust error handling, check if internet is available, handle error cases, network failures.
+* [ ] Replace Filter Settings Activity with a lightweight modal overlay.
+* [ ] User can share a link to their friends or email it to themselves.
 
 
 The following **additional** features are implemented:

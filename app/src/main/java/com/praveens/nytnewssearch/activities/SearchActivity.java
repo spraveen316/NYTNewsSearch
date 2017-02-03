@@ -14,8 +14,10 @@ import android.view.MenuItem;
 import com.praveens.nytnewssearch.R;
 import com.praveens.nytnewssearch.adapter.SearchRecyclerViewAdapter;
 import com.praveens.nytnewssearch.fragments.SettingsFragment;
+import com.praveens.nytnewssearch.listener.EndlessRecyclerViewScrollListener;
 import com.praveens.nytnewssearch.models.Article;
 import com.praveens.nytnewssearch.models.Settings;
+import com.praveens.nytnewssearch.utilities.Constants;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -43,21 +45,23 @@ import okhttp3.Response;
 import android.support.v7.widget.SearchView;
 import android.widget.Toast;
 
+import static com.praveens.nytnewssearch.utilities.Constants.FRAGMENT_SETTINGS_TAG;
+import static com.praveens.nytnewssearch.utilities.Constants.NYT_URL;
+
 public class SearchActivity extends AppCompatActivity implements SettingsFragment.SaveSettingsDialogListener {
 
     @BindView(R.id.rvArticleGrid)
     RecyclerView recyclerView;
 
+    private EndlessRecyclerViewScrollListener scrollListener;
     private static final String LOG_TAG = SearchActivity.class.getName();
-    private static final String NYT_API_KEY = "20a186875f0b4cc7803573e6ca94d2ef";
-    private static final String NYT_URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
     private List<Article> articles = new ArrayList<Article>();
-
     private RecyclerView.Adapter adapter;
     private OkHttpClient client = new OkHttpClient();
-
     private MenuItem searchMenuItem;
     private Settings settings;
+    private String pageNum = Constants.STARTING_PAGINATION_NUMBER;
+    private String queryBuff;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -68,7 +72,10 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                fetchArticles(query);
+                pageNum = Constants.STARTING_PAGINATION_NUMBER;
+                scrollListener.resetState();
+                queryBuff = query;
+                fetchArticles(query, true, pageNum);
                 searchView.clearFocus();
                 return true;
             }
@@ -96,12 +103,23 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
         setContentView(R.layout.activity_search);
         ButterKnife.bind(this);
 
-        GridLayoutManager grid = new GridLayoutManager(this, 3);
-        recyclerView.setLayoutManager(grid);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, Constants.ARTICLE_SEARCH_GRID_COLUMNS);
+        recyclerView.setLayoutManager(gridLayoutManager);
 
         articles = new ArrayList<Article>();
         adapter = new SearchRecyclerViewAdapter(this, articles);
         recyclerView.setAdapter(adapter);
+
+        // Retain an instance so that you can call `resetState()` for fresh searches
+        scrollListener = new EndlessRecyclerViewScrollListener(gridLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                loadNextDataFromApi(page);
+            }
+        };
+        // Adds the scroll listener to RecyclerView
+        recyclerView.addOnScrollListener(scrollListener);
+
         adapter.notifyDataSetChanged();
 
         ActionBar actionBar = getSupportActionBar(); // or getActionBar();
@@ -109,6 +127,11 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
         //String title = actionBar.getTitle().toString(); // get the title
         //actionBar.hide(); // or even hide the actionbar
 
+    }
+
+    private void loadNextDataFromApi(int offset) {
+        pageNum = String.valueOf(Integer.valueOf(pageNum) + 1);
+        fetchArticles(queryBuff, false, pageNum);
     }
 
     @Override
@@ -126,7 +149,7 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
     private void doSettings() {
         FragmentManager fm = getSupportFragmentManager();
         SettingsFragment settingsFragment = SettingsFragment.newInstance();
-        settingsFragment.show(fm, "fragment_settings");
+        settingsFragment.show(fm, Constants.FRAGMENT_SETTINGS_TAG);
     }
 
     private String buildFQParamvalue(Map<Settings.NewsDeskValues, Boolean> ndValues) {
@@ -143,24 +166,24 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
         } else return null;
     }
 
-    private void fetchArticles(String searchText) {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(NYT_URL).newBuilder();
-        urlBuilder.addQueryParameter("api-key", NYT_API_KEY);
-        urlBuilder.addQueryParameter("page", "0");
-        urlBuilder.addQueryParameter("q", searchText);
+    private void fetchArticles(String searchText, final boolean clear, final String pageNum) {
 
-        Log.d(LOG_TAG, "settings=" + settings);
+        // TODO read from sharedPref
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Constants.NYT_URL).newBuilder();
+        urlBuilder.addQueryParameter(Constants.QUERY_PARAM_API_KEY, Constants.NYT_API_KEY);
+        urlBuilder.addQueryParameter(Constants.QUERY_PARAM_PAGE, pageNum);
+        urlBuilder.addQueryParameter(Constants.QUERY_PARAM_Q, searchText);
 
         if (settings != null) {
             if (settings.getBeginDate() != null) {
-                urlBuilder.addQueryParameter("begin_date", settings.getBeginDate());
+                urlBuilder.addQueryParameter(Constants.QUERY_PARAM_BEGIN_DATE, settings.getBeginDate());
             }
             if (StringUtils.isNotBlank(settings.getSortSelection())) {
-                urlBuilder.addQueryParameter("sort", settings.getSortSelection());
+                urlBuilder.addQueryParameter(Constants.QUERY_PARAM_SORT, settings.getSortSelection());
             }
             if (settings.getCheckedNDValues() != null && !settings.getCheckedNDValues().isEmpty()) {
                 //&fq=news_desk:("Sports" "Foreign")
-                urlBuilder.addEncodedQueryParameter("fq", buildFQParamvalue(settings.getCheckedNDValues()));
+                urlBuilder.addEncodedQueryParameter(Constants.QUERY_PARAM_FQ, buildFQParamvalue(settings.getCheckedNDValues()));
             }
         }
         String url = urlBuilder.build().toString();
@@ -183,27 +206,31 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
 
                 try {
                     String responseData = response.body().string();
-                    Log.d(LOG_TAG, responseData);
+                    //Log.d(LOG_TAG, responseData);
                     JSONObject json = new JSONObject(responseData);
                     articlesJSON = json.getJSONObject("response").getJSONArray("docs");
-                    articles.clear();
-                    articles.addAll(Article.fromJSONArray(articlesJSON));
-
-                    for (int i = 0; i < articles.size(); i++) {
-                        //Log.d(LOG_TAG, articles.get(i).toString());
+                    if (clear) {
+                        articles.clear();
                     }
+                    articles.addAll(Article.fromJSONArray(articlesJSON));
 
                     // Run view-related code back on the main thread
                     SearchActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            adapter.notifyDataSetChanged();
+                            if (clear) {
+                                adapter.notifyDataSetChanged();
+                            } else {
+                                adapter.notifyItemRangeInserted((Integer.valueOf(pageNum) * 10) + 1, 10);
+                            }
                         }
                     });
 
 
                 } catch (JSONException e) {
                     e.printStackTrace();
+                } finally {
+                    response.close();
                 }
             }
         });
@@ -212,8 +239,8 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
 
     @Override
     public void onSaveSettings(Settings savedSettings) {
-        SimpleDateFormat originalFormat = new SimpleDateFormat("MMM dd yy", Locale.getDefault());
-        SimpleDateFormat targetFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
+        SimpleDateFormat originalFormat = new SimpleDateFormat(Constants.DATE_FORMAT_DISPLAY, Locale.getDefault());
+        SimpleDateFormat targetFormat = new SimpleDateFormat(Constants.DATE_FORMAT_FOR_QUERY, Locale.getDefault());
         if (StringUtils.isNotBlank(savedSettings.getBeginDate())) {
             try {
                 Date date = originalFormat.parse(savedSettings.getBeginDate());
@@ -224,7 +251,5 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
             }
         }
         settings = savedSettings;
-        Toast.makeText(this, "Settings=" + savedSettings.getBeginDate() + ", " + settings.getSortSelection()
-                + ", " + savedSettings.getCheckedNDValues(), Toast.LENGTH_SHORT).show();
     }
 }

@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.praveens.nytnewssearch.R;
 import com.praveens.nytnewssearch.models.Settings;
+import com.praveens.nytnewssearch.utilities.Constants;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import static com.praveens.nytnewssearch.R.id.cbFS;
 import static com.praveens.nytnewssearch.R.id.cbSports;
 import static com.praveens.nytnewssearch.R.id.etBeginDate;
 import static com.praveens.nytnewssearch.R.id.search_edit_frame;
+import static com.praveens.nytnewssearch.utilities.Constants.SHARED_PREF_SETTINGS;
 
 import android.widget.Toast;
 
@@ -60,8 +62,6 @@ import android.widget.Toast;
 public class SettingsFragment extends DialogFragment {//implements DatePickerFragment.DatePickerListener {
 
     public static final String LOG_TAG = "SettingsFragment";
-
-    public static final String SHARED_PREF_SETTINGS = "SettingsPrefFile";
     public SharedPreferences settingsPref;
 
     public interface SaveSettingsDialogListener {
@@ -126,7 +126,7 @@ public class SettingsFragment extends DialogFragment {//implements DatePickerFra
 
         setupCheckboxes();
 
-        settingsPref = getApplicationContext().getSharedPreferences(SHARED_PREF_SETTINGS, 0);
+        settingsPref = getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_SETTINGS, 0);
         setFieldsFromSharedPref(settingsPref);
 
         return view;
@@ -135,11 +135,11 @@ public class SettingsFragment extends DialogFragment {//implements DatePickerFra
     }
 
     private void setFieldsFromSharedPref(SharedPreferences settingsPref) {
-        beginDate.setText(settingsPref.getString("begin_date", null));
-        arts.setChecked(settingsPref.getBoolean("arts", false));
-        fashionAndStyle.setChecked(settingsPref.getBoolean("fashion", false));
-        sports.setChecked(settingsPref.getBoolean("sports", false));
-        spinner.setSelection(settingsPref.getInt("spinner_position", 0));
+        beginDate.setText(settingsPref.getString(Constants.SHARED_PREF_BEGIN_DATE, null));
+        arts.setChecked(settingsPref.getBoolean(Constants.SHARED_PREF_ARTS, false));
+        fashionAndStyle.setChecked(settingsPref.getBoolean(Constants.SHARED_PREF_FASHION, false));
+        sports.setChecked(settingsPref.getBoolean(Constants.SHARED_PREF_SPORTS, false));
+        spinner.setSelection(settingsPref.getInt(Constants.SHARED_PREF_SPINNER_POSITION, 0));
     }
 
     DatePickerDialog.OnDateSetListener onDate = new DatePickerDialog.OnDateSetListener() {
@@ -153,7 +153,7 @@ public class SettingsFragment extends DialogFragment {//implements DatePickerFra
     private String formatDate(int year, int monthOfYear, int dayOfMonth) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, monthOfYear, dayOfMonth);
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd yy");
+        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT_DISPLAY);
         sdf.setCalendar(calendar);
         return sdf.format(calendar.getTime());
     }
@@ -208,7 +208,7 @@ public class SettingsFragment extends DialogFragment {//implements DatePickerFra
                 // newFragment.show(getFragmentManager(), "datePicker");
                 DatePickerFragment datePickerFragment = new DatePickerFragment();
                 datePickerFragment.setCallBack(onDate);
-                datePickerFragment.show(getFragmentManager().beginTransaction(), "datePicker");
+                datePickerFragment.show(getFragmentManager().beginTransaction(), Constants.FRAGMENT_DATE_PICKER_TAG);
             }
         });
 
@@ -222,23 +222,23 @@ public class SettingsFragment extends DialogFragment {//implements DatePickerFra
                 saveSettingsDialogListener.onSaveSettings(settings);
 
                 SharedPreferences.Editor editor = settingsPref.edit();
-                editor.putString("begin_date", beginDate.getText().toString());
-                editor.putString("sort_selection", values[spinner.getSelectedItemPosition()]);
-                editor.putInt("spinner_position", spinner.getSelectedItemPosition());
+                editor.putString(Constants.SHARED_PREF_BEGIN_DATE, beginDate.getText().toString());
+                editor.putString(Constants.SHARED_PREF_SORT_SELECTION, values[spinner.getSelectedItemPosition()]);
+                editor.putInt(Constants.SHARED_PREF_SPINNER_POSITION, spinner.getSelectedItemPosition());
                 if (settings.getCheckedNDValues().get(Settings.NewsDeskValues.ARTS) != null) {
-                    editor.putBoolean("arts", settings.getCheckedNDValues().get(Settings.NewsDeskValues.ARTS));
+                    editor.putBoolean(Constants.SHARED_PREF_ARTS, settings.getCheckedNDValues().get(Settings.NewsDeskValues.ARTS));
                 } else {
-                    editor.putBoolean("arts", false);
+                    editor.putBoolean(Constants.SHARED_PREF_ARTS, false);
                 }
                 if (settings.getCheckedNDValues().get(Settings.NewsDeskValues.FASHION_STYLE) != null) {
-                    editor.putBoolean("fashion", settings.getCheckedNDValues().get(Settings.NewsDeskValues.FASHION_STYLE));
+                    editor.putBoolean(Constants.SHARED_PREF_FASHION, settings.getCheckedNDValues().get(Settings.NewsDeskValues.FASHION_STYLE));
                 } else {
-                    editor.putBoolean("fashion", false);
+                    editor.putBoolean(Constants.SHARED_PREF_FASHION, false);
                 }
                 if (settings.getCheckedNDValues().get(Settings.NewsDeskValues.SPORTS) != null) {
-                    editor.putBoolean("sports", settings.getCheckedNDValues().get(Settings.NewsDeskValues.SPORTS));
+                    editor.putBoolean(Constants.SHARED_PREF_SPORTS, settings.getCheckedNDValues().get(Settings.NewsDeskValues.SPORTS));
                 } else {
-                    editor.putBoolean("sports", false);
+                    editor.putBoolean(Constants.SHARED_PREF_SPORTS, false);
                 }
 
                 editor.commit();
