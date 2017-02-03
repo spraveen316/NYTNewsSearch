@@ -12,12 +12,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.praveens.nytnewssearch.R;
 import com.praveens.nytnewssearch.activities.ArticleActivity;
 import com.praveens.nytnewssearch.models.Article;
 import com.praveens.nytnewssearch.viewholder.DefaultViewHolder;
 import com.praveens.nytnewssearch.viewholder.TextOnlyViewHolder;
-import com.squareup.picasso.Picasso;
 
 import org.apache.commons.lang3.StringUtils;
 import org.parceler.Parcels;
@@ -113,7 +113,7 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
         defaultViewHolder.getHeadline().setText(article.getHeadline());
         defaultViewHolder.getSource().setText(article.getSource());
 
-        Picasso.with(context).load(article.getThumbnail()).fit().centerCrop()
+        Glide.with(context).load(article.getThumbnail()).centerCrop().dontAnimate()
                 .error(R.drawable.imageviewplaceholder)
                 .placeholder(R.drawable.imageviewplaceholder)
                 .into(defaultViewHolder.getThumbnail());
