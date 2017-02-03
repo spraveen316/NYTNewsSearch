@@ -1,5 +1,9 @@
 package com.praveens.nytnewssearch.activities;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -8,6 +12,7 @@ import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -43,6 +48,11 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import android.support.v7.widget.SearchView;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+
+import static android.R.id.message;
 
 public class SearchActivity extends AppCompatActivity implements SettingsFragment.SaveSettingsDialogListener {
 
@@ -58,6 +68,7 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
     private Settings settings;
     private String pageNum = Constants.STARTING_PAGINATION_NUMBER;
     private String queryBuff;
+    private Snackbar snackbar;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -105,7 +116,9 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
         setContentView(R.layout.activity_search);
         ButterKnife.bind(this);
 
-      //  GridLayoutManager gridLayoutManager = new GridLayoutManager(this, Constants.ARTICLE_SEARCH_GRID_COLUMNS);
+        checkIfConnected();
+
+        //  GridLayoutManager gridLayoutManager = new GridLayoutManager(this, Constants.ARTICLE_SEARCH_GRID_COLUMNS);
         StaggeredGridLayoutManager gridLayoutManager = new StaggeredGridLayoutManager(Constants.ARTICLE_SEARCH_GRID_COLUMNS, 1);
         recyclerView.setLayoutManager(gridLayoutManager);
 
@@ -130,6 +143,24 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
         //String title = actionBar.getTitle().toString(); // get the title
         //actionBar.hide(); // or even hide the actionbar
 
+    }
+
+    private boolean checkIfConnected() {
+        snackbar = Snackbar.make(getWindow().getDecorView().getRootView(), "INTERNET CHECK", Snackbar.LENGTH_INDEFINITE);
+
+        ConnectivityManager c = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo n = c.getActiveNetworkInfo();
+        if (n != null) {
+            snackbar.dismiss();
+            return n.isConnectedOrConnecting();
+        }
+
+        View view = snackbar.getView();
+        FrameLayout.LayoutParams params =(FrameLayout.LayoutParams)view.getLayoutParams();
+        params.gravity = Gravity.CENTER;
+        view.setLayoutParams(params);
+        snackbar.show();
+        return false;
     }
 
     private void loadNextPageFromApi(int offset) {
@@ -221,6 +252,7 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
                     SearchActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            if (snackbar != null) snackbar.dismiss();
                             if (clear) {
                                 adapter.notifyDataSetChanged();
                             } else {

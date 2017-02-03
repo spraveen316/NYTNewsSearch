@@ -24,7 +24,7 @@ The following **required** functionality is completed:
 * [ ] User can share a link to their friends or email it to themselves.
 
 The following **optional** advanced user stories are implemented:
-* [ ] Robust error handling, check if internet is available, handle error cases, network failures.
+* [X] Robust error handling, check if internet is available, handle error cases, network failures.
 * [ ] Replace Filter Settings Activity with a lightweight modal overlay.
 * [ ] User can share a link to their friends or email it to themselves.
 * [X] Use the RecyclerView with the StaggeredGridLayoutManager to display improve the grid of image results.
