@@ -7,9 +7,7 @@
     </style>-->
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Apply default style for dialogs -->
         <item name="android:dialogTheme">@style/AppDialogTheme</item>
-        <!-- Apply default style for alert dialogs -->
         <item name="android:alertDialogTheme">@style/AppAlertTheme</item>
     </style>
 
@@ -37,6 +35,5 @@
         <item name="colorControlNormal">@color/dark_blue</item>
         <item name="android:textColorHighlight">@color/light_blue</item>
     </style>
-
 
 </resources>

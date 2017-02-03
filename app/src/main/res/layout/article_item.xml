@@ -20,5 +20,16 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/ivThumbnail"
         android:ellipsize="end"
-        android:text="tvHeadline" />
+        android:text="Headline"
+        android:textSize="10dp" />
+
+    <TextView
+        android:id="@+id/tvSource"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvHeadline"
+        android:ellipsize="end"
+        android:text="Source:"
+        android:textSize="7dp"
+        android:textStyle="italic" />
 </RelativeLayout>

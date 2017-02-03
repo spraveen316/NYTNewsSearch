@@ -8,8 +8,6 @@ import org.parceler.Parcel;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.R.id.empty;
-
 /**
  * Created by praveens on 1/30/17.
  */
@@ -19,6 +17,7 @@ public class Article {
     private String headline;
     private String webUrl;
     private String thumbnail;
+    private String source;
 
     public Article() {
     }
@@ -26,6 +25,7 @@ public class Article {
     public Article(JSONObject jsonObject) throws JSONException {
         this.headline = jsonObject.getJSONObject("headline").get("main").toString();
         this.webUrl = jsonObject.getString("web_url");
+        this.source = jsonObject.getString("source");
 
         JSONArray multimedia = jsonObject.getJSONArray("multimedia");
 
@@ -46,6 +46,10 @@ public class Article {
 
     public String getThumbnail() {
         return thumbnail;
+    }
+
+    public String getSource() {
+        return source;
     }
 
     public static List<Article> fromJSONArray(JSONArray articlesJSONArray) throws JSONException {

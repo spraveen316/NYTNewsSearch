@@ -43,10 +43,6 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
     private List<Article> articles;
     private Context context;
 
-    public void addAll() {
-
-    }
-
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
@@ -110,10 +106,12 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
 
     private void configureTextOnlyViewHolder(TextOnlyViewHolder textOnlyViewHolder, Article article) {
         textOnlyViewHolder.getHeadline().setText(article.getHeadline());
+        textOnlyViewHolder.getSource().setText(article.getSource());
     }
 
     private void configureDefaultViewHolder(DefaultViewHolder defaultViewHolder, Article article) {
         defaultViewHolder.getHeadline().setText(article.getHeadline());
+        defaultViewHolder.getSource().setText(article.getSource());
 
         Picasso.with(context).load(article.getThumbnail()).fit().centerCrop()
                 .error(R.drawable.imageviewplaceholder)
