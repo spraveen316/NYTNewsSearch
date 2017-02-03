@@ -78,6 +78,9 @@ public class SettingsFragment extends DialogFragment {//implements DatePickerFra
     @BindView(R.id.btnSave)
     Button save;
 
+    @BindView(R.id.btnClear)
+    Button clear;
+
     @BindView(R.id.ssort)
     Spinner spinner;
 
@@ -243,6 +246,16 @@ public class SettingsFragment extends DialogFragment {//implements DatePickerFra
 
                 editor.commit();
 
+                dismiss();
+            }
+        });
+
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = settingsPref.edit();
+                editor.clear();
+                editor.commit();
                 dismiss();
             }
         });

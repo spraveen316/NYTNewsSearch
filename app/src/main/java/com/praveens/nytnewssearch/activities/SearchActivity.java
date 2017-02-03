@@ -43,10 +43,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import android.support.v7.widget.SearchView;
-import android.widget.Toast;
-
-import static com.praveens.nytnewssearch.utilities.Constants.FRAGMENT_SETTINGS_TAG;
-import static com.praveens.nytnewssearch.utilities.Constants.NYT_URL;
 
 public class SearchActivity extends AppCompatActivity implements SettingsFragment.SaveSettingsDialogListener {
 
@@ -76,6 +72,7 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
                 scrollListener.resetState();
                 queryBuff = query;
                 fetchArticles(query, true, pageNum);
+                fetchArticles(query, false, String.valueOf(Integer.valueOf(pageNum) + 1));
                 searchView.clearFocus();
                 return true;
             }
@@ -114,7 +111,7 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
         scrollListener = new EndlessRecyclerViewScrollListener(gridLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                loadNextDataFromApi(page);
+                loadNextPageFromApi(page);
             }
         };
         // Adds the scroll listener to RecyclerView
@@ -129,7 +126,7 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
 
     }
 
-    private void loadNextDataFromApi(int offset) {
+    private void loadNextPageFromApi(int offset) {
         pageNum = String.valueOf(Integer.valueOf(pageNum) + 1);
         fetchArticles(queryBuff, false, pageNum);
     }
