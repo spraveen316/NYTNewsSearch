@@ -2,7 +2,6 @@ package com.praveens.nytnewssearch.activities;
 
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
@@ -50,9 +49,6 @@ import okhttp3.Response;
 import android.support.v7.widget.SearchView;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.TextView;
-
-import static android.R.id.message;
 
 public class SearchActivity extends AppCompatActivity implements SettingsFragment.SaveSettingsDialogListener {
 
@@ -130,7 +126,7 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
         scrollListener = new EndlessRecyclerViewScrollListener(gridLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                loadNextPageFromApi(page);
+                loadNextPageFromApi();
             }
         };
         // Adds the scroll listener to RecyclerView
@@ -163,7 +159,7 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
         return false;
     }
 
-    private void loadNextPageFromApi(int offset) {
+    private void loadNextPageFromApi() {
         pageNum = String.valueOf(Integer.valueOf(pageNum) + 1);
         fetchArticles(queryBuff, false, pageNum);
     }

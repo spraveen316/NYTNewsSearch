@@ -21,12 +21,11 @@ The following **required** functionality is completed:
 * [X] Subsequent searches will have any filters applied to the search results.
 * [X] User can tap on any article in results to view the contents in an embedded browser.
 * [X] User can scroll down "infinitely" to continue loading more news articles. The maximum number of articles is limited by the API search.
-* [ ] User can share a link to their friends or email it to themselves.
+* [X] User can share a link to their friends or email it to themselves.
 
 The following **optional** advanced user stories are implemented:
 * [X] Robust error handling, check if internet is available, handle error cases, network failures.
 * [ ] Replace Filter Settings Activity with a lightweight modal overlay.
-* [ ] User can share a link to their friends or email it to themselves.
 * [X] Use the RecyclerView with the StaggeredGridLayoutManager to display improve the grid of image results.
 * [X] **Stretch**: For different news articles that only have text or have text with thumbnails, use [Heterogenous Layouts](http://guides.codepath.com/android/Heterogenous-Layouts-inside-RecyclerView) with RecyclerView.
 * [X] **Stretch**: Apply the popular [ButterKnife annotation](http://guides.codepath.com/android/Reducing-View-Boilerplate-with-Butterknife) library to reduce view boilerplate.

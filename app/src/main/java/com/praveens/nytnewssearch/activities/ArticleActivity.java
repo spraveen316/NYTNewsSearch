@@ -1,16 +1,13 @@
 package com.praveens.nytnewssearch.activities;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.ShareActionProvider;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,31 +33,35 @@ public class ArticleActivity extends AppCompatActivity {
     WebView webview;
 
     Article article;
+    private ShareActionProvider miShareAction;
+    private Intent shareIntent;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_article, menu);
         MenuItem shareItem = menu.findItem(R.id.miShare);
-        ShareActionProvider myShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
-
+        miShareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
+        attachShareIntentAction();
         return true;
     }
 
-    @Override
+    public void attachShareIntentAction() {
+        if (miShareAction != null && shareIntent != null)
+            miShareAction.setShareIntent(shareIntent);
+    }
+
+   /* @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.miShare:
                 Log.d(LOG_TAG, "Share...");
-                doShare();
+                //setupFacebookShareIntent();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
+    }*/
 
-    private void doShare() {
-        setupFacebookShareIntent();
-    }
 
     private void setupFacebookShareIntent() {
         ShareDialog shareDialog;
@@ -101,6 +102,15 @@ public class ArticleActivity extends AppCompatActivity {
         webview.getSettings().setBuiltInZoomControls(true); // allow pinch to zooom
         webview.getSettings().setDisplayZoomControls(false); // disable the default zoom controls on the page
 
+        prepareShareIntent();
+        attachShareIntentAction();
+    }
+
+    public void prepareShareIntent() {
+        shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, webview.getUrl());
+        shareIntent.setType("image/*");
     }
 
     private class CustomBrowser extends WebViewClient {
