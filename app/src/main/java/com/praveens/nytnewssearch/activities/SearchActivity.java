@@ -269,6 +269,10 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
 
     @Override
     public void onSaveSettings(Settings savedSettings) {
+        if (savedSettings == null) {
+            settings = new Settings();
+            return;
+        }
         SimpleDateFormat originalFormat = new SimpleDateFormat(Constants.DATE_FORMAT_DISPLAY, Locale.getDefault());
         SimpleDateFormat targetFormat = new SimpleDateFormat(Constants.DATE_FORMAT_FOR_QUERY, Locale.getDefault());
         if (StringUtils.isNotBlank(savedSettings.getBeginDate())) {

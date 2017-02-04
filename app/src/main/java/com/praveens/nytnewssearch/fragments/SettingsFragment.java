@@ -256,6 +256,8 @@ public class SettingsFragment extends DialogFragment {//implements DatePickerFra
                 SharedPreferences.Editor editor = settingsPref.edit();
                 editor.clear();
                 editor.commit();
+                SaveSettingsDialogListener saveSettingsDialogListener = (SaveSettingsDialogListener) getActivity();
+                saveSettingsDialogListener.onSaveSettings(settings);
                 dismiss();
             }
         });
