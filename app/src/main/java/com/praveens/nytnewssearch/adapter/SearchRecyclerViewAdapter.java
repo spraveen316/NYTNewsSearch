@@ -1,20 +1,19 @@
 package com.praveens.nytnewssearch.adapter;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Movie;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.praveens.nytnewssearch.R;
-import com.praveens.nytnewssearch.activities.ArticleActivity;
 import com.praveens.nytnewssearch.models.Article;
 import com.praveens.nytnewssearch.viewholder.DefaultViewHolder;
 import com.praveens.nytnewssearch.viewholder.TextOnlyViewHolder;
@@ -47,7 +46,6 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         RecyclerView.ViewHolder viewHolder;
-        //LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.article_item, parent, false);
 
         switch (viewType) {
             case TEXT_ONLY_VIEW:
@@ -63,37 +61,19 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder customViewHolder, final int position) {
-        Article currentArticle = articles.get(position);
+        final Article currentArticle = articles.get(position);
 
         switch (customViewHolder.getItemViewType()) {
             case TEXT_ONLY_VIEW:
                 TextOnlyViewHolder textOnlyViewHolder = (TextOnlyViewHolder) customViewHolder;
                 configureTextOnlyViewHolder(textOnlyViewHolder, currentArticle);
-                textOnlyViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(context, ArticleActivity.class);
-                        Article article = articles.get(position);
-                        intent.putExtra("article", Parcels.wrap(article));
-                        context.startActivity(intent);
-                    }
-                });
                 break;
             default:
                 DefaultViewHolder defaultViewHolder = (DefaultViewHolder) customViewHolder;
                 configureDefaultViewHolder(defaultViewHolder, currentArticle);
-                customViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(context, ArticleActivity.class);
-                        Article article = articles.get(position);
-                        intent.putExtra("article", Parcels.wrap(article));
-                        context.startActivity(intent);
-                    }
-                });
         }
 
-        customViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+        /*customViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, ArticleActivity.class);
@@ -101,7 +81,30 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
                 intent.putExtra("article", Parcels.wrap(article));
                 context.startActivity(intent);
             }
-        });
+        });*/
+
+        openChromeTab(currentArticle.getWebUrl());
+    }
+
+    private void openChromeTab(String url) {
+        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+        builder.setToolbarColor(ContextCompat.getColor(context, R.color.colorAccent));
+
+        Intent shareIntent = new Intent();
+        shareIntent.setType("text/plain");
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, url);
+
+        int requestCode = 100;
+        PendingIntent pendingIntent = PendingIntent.getActivity(context,
+                requestCode,
+                shareIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_share);
+        builder.setActionButton(bitmap, "Share Link", pendingIntent, true);
+        CustomTabsIntent customTabsIntent = builder.build();
+        builder.addDefaultShareMenuItem();
+        customTabsIntent.launchUrl(context, Uri.parse(url));
     }
 
     private void configureTextOnlyViewHolder(TextOnlyViewHolder textOnlyViewHolder, Article article) {

@@ -30,6 +30,7 @@ The following **optional** advanced user stories are implemented:
 * [X] **Stretch**: For different news articles that only have text or have text with thumbnails, use [Heterogenous Layouts](http://guides.codepath.com/android/Heterogenous-Layouts-inside-RecyclerView) with RecyclerView.
 * [X] **Stretch**: Apply the popular [ButterKnife annotation](http://guides.codepath.com/android/Reducing-View-Boilerplate-with-Butterknife) library to reduce view boilerplate.
 * [X] **Stretch**: Replace Picasso with [Glide](https://inthecheesefactory.com/blog/get-to-know-glide-recommended-by-google/en) for more efficient image rendering.
+* [X] **Stretch**: Replace the embedded WebView for viewing news articles with a Chrome Custom Tab using a custom action icon for sharing.
 
 The following **additional** features are implemented:
 * [X] Settings can be cleared from Settings overlay.

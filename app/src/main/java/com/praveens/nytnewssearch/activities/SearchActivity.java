@@ -257,7 +257,6 @@ public class SearchActivity extends AppCompatActivity implements SettingsFragmen
                         }
                     });
 
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } finally {

@@ -1,9 +1,14 @@
 package com.praveens.nytnewssearch.activities;
 
 import android.annotation.TargetApi;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -102,15 +107,34 @@ public class ArticleActivity extends AppCompatActivity {
         webview.getSettings().setBuiltInZoomControls(true); // allow pinch to zooom
         webview.getSettings().setDisplayZoomControls(false); // disable the default zoom controls on the page
 
+        // Chrome
+/*        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+        builder.setToolbarColor(ContextCompat.getColor(this, R.color.colorAccent));
+        prepareShareIntent();
+        int requestCode = 100;
+        PendingIntent pendingIntent = PendingIntent.getActivity(this,
+                requestCode,
+                shareIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_share);
+        builder.setActionButton(bitmap, "Share Link", pendingIntent, true);
+        CustomTabsIntent customTabsIntent = builder.build();
+        builder.addDefaultShareMenuItem();
+        // and launch the desired Url with CustomTabsIntent.launchUrl()
+        customTabsIntent.launchUrl(this, Uri.parse(article.getWebUrl()));
+*/
         prepareShareIntent();
         attachShareIntentAction();
     }
 
     public void prepareShareIntent() {
+
         shareIntent = new Intent();
+        //shareIntent.setType("image/*");
+        shareIntent.setType("text/plain");
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_TEXT, webview.getUrl());
-        shareIntent.setType("image/*");
+
     }
 
     private class CustomBrowser extends WebViewClient {
